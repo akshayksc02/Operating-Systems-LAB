@@ -5,22 +5,36 @@ struct Process{
     int AT,BT,CT,TAT,WT,RT;
 }p[10];
 
+int CPUTime=0;
+
 void Input(int n){
     for(int i=0;i<n;i++){
         printf("Enter Process name , Arriving Time , Burst Time : ");
         scanf("%s %d %d",&p[i].name,&p[i].AT,&p[i].BT);
     }
+
 }
 
-void sort(int n){
+void ReadyQueue(int size){
     struct Process temp;
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n-i-1;j++)
+    for(int i=0;i<size;i++){
+        for(int j=0;j<size-i-1;j++)
             if(p[j].AT>p[j+1].AT){
                 temp=p[j];
                 p[j]=p[j+1];
                 p[j+1]=temp;
             }
+    }
+}
+
+void Compute(int n){
+    for(int i=0;i<n;i++){
+        int startTime=CPUTime;
+        CPUTime=CPUTime+p[i].BT;
+        p[i].CT=CPUTime;
+        p[i].TAT=p[i].CT-p[i].AT;
+        p[i].WT=p[i].TAT-p[i].BT;
+        p[i].RT=startTime-p[i].AT;
     }
 }
 
@@ -41,44 +55,14 @@ void Output(int n){
     printf("\nAverage RT : %.3f",avgRT);
 }
 
-
-void SJF(int n){
-    Input(n);
-    sort(n);
-    int CPUTime=0;
-    int completed[10]={0};
-    int done=0;
-    while(done!=n){
-        int idx=-1,minBT=99999;
-        for(int i=0;i<n;i++){
-            if(!completed[i] && p[i].AT <= CPUTime){
-                if(p[i].BT < minBT){
-                    minBT = p[i].BT;
-                    idx = i;
-                }
-            }
-        }
-        if(idx == -1){
-            CPUTime++;
-            continue;
-        }
-        int startTime=CPUTime;
-        CPUTime=CPUTime+p[idx].BT;
-        p[idx].CT=CPUTime;
-        p[idx].TAT=p[idx].CT-p[idx].AT;
-        p[idx].WT=p[idx].TAT-p[idx].BT;
-        p[idx].RT=startTime-p[idx].AT;
-        completed[idx]=1;
-        done++;
-    }
-
-    Output(n);
-
-}
-
 int main(){
     int n;
+    printf("Akshay KS\n1BM24CS029\n");
     printf("Enter number of Processes : ");
     scanf("%d",&n);
-    SJF(n);
+
+    Input(n);
+    ReadyQueue(n);
+    Compute(n);
+    Output(n);
 }

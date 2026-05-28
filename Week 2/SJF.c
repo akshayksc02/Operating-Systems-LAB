@@ -2,14 +2,13 @@
 
 struct Process{
     char name[10];
-    int AT,BT,CT,TAT,WT,RT,remaining,start;
+    int AT,BT,CT,TAT,WT,RT;
 }p[10];
 
 void Input(int n){
     for(int i=0;i<n;i++){
         printf("Enter Process name , Arriving Time , Burst Time : ");
         scanf("%s %d %d",&p[i].name,&p[i].AT,&p[i].BT);
-        p[i].remaining=p[i].BT;
     }
 }
 
@@ -42,52 +41,45 @@ void Output(int n){
     printf("\nAverage RT : %.3f",avgRT);
 }
 
-void SRTF(int n){
+
+void SJF(int n){
     Input(n);
     sort(n);
     int CPUTime=0;
     int completed[10]={0};
     int done=0;
-
     while(done!=n){
-        int idx=-1,min=9999;
+        int idx=-1,minBT=99999;
         for(int i=0;i<n;i++){
-            if(!completed[i] && p[i].AT<=CPUTime){
-                if(p[i].remaining < min){
-                    min=p[i].remaining;
-                    idx=i;
+            if(!completed[i] && p[i].AT <= CPUTime){
+                if(p[i].BT < minBT){
+                    minBT = p[i].BT;
+                    idx = i;
                 }
             }
         }
-
-        if(idx==-1){
+        if(idx == -1){
             CPUTime++;
             continue;
         }
-
-        if(p[idx].remaining == p[idx].BT){
-            p[idx].start = CPUTime;
-        }
-
-        p[idx].remaining--;
-        CPUTime++;
-        if(p[idx].remaining == 0){
-            p[idx].CT= CPUTime;
-            p[idx].TAT = p[idx].CT - p[idx].AT;
-            p[idx].WT = p[idx].TAT - p[idx].BT;
-            p[idx].RT = p[idx].start - p[idx].AT ;
-            done++;
-            completed[idx]=1; 
-        }
-            
+        int startTime=CPUTime;
+        CPUTime=CPUTime+p[idx].BT;
+        p[idx].CT=CPUTime;
+        p[idx].TAT=p[idx].CT-p[idx].AT;
+        p[idx].WT=p[idx].TAT-p[idx].BT;
+        p[idx].RT=startTime-p[idx].AT;
+        completed[idx]=1;
+        done++;
     }
 
     Output(n);
+
 }
 
 int main(){
     int n;
+    printf("Akshay KS\n1BM24CS029\n");
     printf("Enter number of Processes : ");
     scanf("%d",&n);
-    SRTF(n);
+    SJF(n);
 }
